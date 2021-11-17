@@ -291,31 +291,51 @@ function myrender(){
 	tds = trs.getElementsByTagName('td')
 		for(let j = 0; j < screen2D[i].length; j++){
 			if(screen2D[i][j] == 0){
-				tds[j].style.background = '#FFFFFF';
+				tds[j].style.backgroundColor = '#FFFFFF';
 			}
 			if(screen2D[i][j] == 1){
-				tds[j].style.background = '#DE3163';
+				tds[j].style.backgroundColor = '#E57373';
 			}
 			if(screen2D[i][j] == 2){
-				tds[j].style.background = '#FF7F50';
+				tds[j].style.backgroundColor = '#FFA726';
 			}
 			if(screen2D[i][j] == 3){
-				tds[j].style.background = '#FFBF00';
+				tds[j].style.backgroundColor = '#FFEE58';
 			}
 			if(screen2D[i][j] == 4){
-				tds[j].style.background = '#9FE2BF';
+				tds[j].style.backgroundColor = '#66BB6A';
 			}
 			if(screen2D[i][j] == 5){
-				tds[j].style.background = '#40E0D0';
+				tds[j].style.backgroundColor = '#29B6F6';
 			}
 			if(screen2D[i][j] == 6){
-				tds[j].style.background = '#6495ED';
+				tds[j].style.backgroundColor = '#5C6BC0';
 			}
 			if(screen2D[i][j] == 7){
-				tds[j].style.background = '#CCCCFF';
+				tds[j].style.backgroundColor = '#9575CD';
 			}
-			if(screen2D[i][j] > 10){
-				tds[j].style.background = '#83A58A';
+			
+			
+			if(screen2D[i][j] == 11){
+				tds[j].style.backgroundColor = '#B71C1C';
+			}
+			if(screen2D[i][j] == 12){
+				tds[j].style.backgroundColor = '#FF6F00';
+			}
+			if(screen2D[i][j] == 13){
+				tds[j].style.backgroundColor = '#FBC02D';
+			}
+			if(screen2D[i][j] == 14){
+				tds[j].style.backgroundColor = '#1B5E20';
+			}
+			if(screen2D[i][j] == 15){
+				tds[j].style.backgroundColor = '#01579B';
+			}
+			if(screen2D[i][j] == 16){
+				tds[j].style.backgroundColor = '#1A237E';
+			}
+			if(screen2D[i][j] == 17){
+				tds[j].style.backgroundColor = '#512DA8 ';
 			}
 			
 		}
@@ -323,20 +343,181 @@ function myrender(){
 }
 
 window.addEventListener("keydown", (e) => {
-	if(e.keyCode == 37){ //ArrowLeft
+	fn_main(e.keyCode);
+})
+
+
+function fn_main(key){
+	
+	//block attr after check crush
+	temp_i 		= block.i;
+	temp_j 		= block.j;
+	temp_status = block.status;
+	
+	if(key == 37){ //ArrowLeft
 		block.j--;
 	}
-	if(e.keyCode == 38){//ArrowUP
+	if(key == 38){//ArrowUP
 		changeStatus();
 	}
-	if(e.keyCode == 39){//ArrowRigth
+	if(key == 39){//ArrowRigth
 		block.j++;
 	}
-	if(e.keyCode == 40){//ArrowDown
+	if(key == 40){//ArrowDown
 		block.i++;
 	}
-	fn_init()
-})
+	
+	setZero(block2D);
+	
+	//crush check for bottom
+	let flag_crush_bottom = false;
+	try{
+		setblock2DFromBlock();
+	}catch(err){
+		flag_crush_bottom = true;
+	}
+	
+	//crush check
+	let flag_crush = isCrushed();
+	
+	if(flag_crush_bottom || flag_crush){
+		block.i 	 = temp_i;
+		block.j 	 = temp_j;
+		block.status = temp_status;
+		setZero(block2D);
+		setblock2DFromBlock();
+		
+		if(key == 40){
+			moveblock2DToStack2D(); //stack blocks
+			
+			//new block
+			block.type = parseInt(Math.random()*7 + 1);
+			block.i = 2;
+			block.j = 4;
+			setZero(block2D);
+			setblock2DFromBlock();
+			
+			//check line is full
+			let cnt10 = getCnt10();
+			
+			removeLine(cnt10);
+			
+			for(let i = 0; i < 10; i++){
+				if(stack2D[4][i]> 0){
+					alert("GAME OVER")
+					setZero(stack2D)
+					return
+				}
+			}
+		}
+	}
+	
+	setZero(screen2D);
+	moveblock2DToScreen2D();
+	movestack2DToScreen2D();
+	myrender();
+}
+
+
+function removeLine(cnt10){
+	let temp_arr = [];
+	for(let i = 0; i < stack2D.length; i++){
+		if(
+			stack2D[i][0] > 0 &&		
+			stack2D[i][1] > 0 &&		
+			stack2D[i][2] > 0 &&		
+			stack2D[i][3] > 0 &&		
+			stack2D[i][4] > 0 &&		
+			
+			stack2D[i][5] > 0 &&
+			stack2D[i][6] > 0 &&		
+			stack2D[i][7] > 0 &&		
+			stack2D[i][8] > 0 &&		
+			stack2D[i][9] > 0		
+		){
+		}else{
+			temp_arr.push(stack2D[i] + "");
+		}
+	}
+	for(let i = 0; i < cnt10; i++){
+		temp_arr.unshift([0,0,0,0,0, 0,0,0,0,0] + ""); //줄 지우고 제일 위로 새로운 배열 푸쉬
+	}
+	
+	for(let i = 0; i < 25; i++){
+		let line = temp_arr[i];
+		let line_arr = line.split(",");
+		stack2D[i][0] = parseInt(line_arr[0]);
+		stack2D[i][1] = parseInt(line_arr[1]);
+		stack2D[i][2] = parseInt(line_arr[2]);
+		stack2D[i][3] = parseInt(line_arr[3]);
+		stack2D[i][4] = parseInt(line_arr[4]);
+		stack2D[i][5] = parseInt(line_arr[5]);
+		stack2D[i][6] = parseInt(line_arr[6]);
+		stack2D[i][7] = parseInt(line_arr[7]);
+		stack2D[i][8] = parseInt(line_arr[8]);
+		stack2D[i][9] = parseInt(line_arr[9]);
+	}
+	
+}
+
+
+
+function getCnt10(){
+	let cnt = 0;
+	for(let i = 0; i < stack2D.length; i++){
+		if(
+			stack2D[i][0] > 0 &&		
+			stack2D[i][1] > 0 &&		
+			stack2D[i][2] > 0 &&		
+			stack2D[i][3] > 0 &&		
+			stack2D[i][4] > 0 &&		
+			
+			stack2D[i][5] > 0 &&
+			stack2D[i][6] > 0 &&		
+			stack2D[i][7] > 0 &&		
+			stack2D[i][8] > 0 &&		
+			stack2D[i][9] > 0		
+		){
+			cnt++;
+		}
+	}
+	return cnt;
+}
+
+function moveblock2DToStack2D(){
+	for(let i = 0; i < block2D.length; i++){
+		for(let j = 0; j < block2D[i].length; j++){
+			if(block2D[i][j] > 0){
+				stack2D[i][j] = block2D[i][j] + 10;
+			}
+		}
+	}
+	
+}
+
+function isCrushed(){
+	let chk4 = 0; //count block
+	for(let i = 0; i < 25; i++){
+		for(let j = 0; j < 10; j++){
+			if(block2D[i][j] > 0){
+				chk4++;
+			}
+		}
+	}
+	if(chk4 < 4){
+		return true;
+	}
+	
+	for(let i = 0; i < 25; i++){
+		for(let j = 0; j < 10; j++){
+			if(block2D[i][j] > 0 && stack2D[i][j] > 0){
+				return true;
+			}
+		}
+	}
+	
+	return false;
+}
 
 function changeStatus(){
 	
@@ -359,7 +540,6 @@ function changeStatus(){
 		}else if(block.status == 3){
 			block.status = 0;
 		}
-		console.log(block.status)
 	}
 	
 }
@@ -372,15 +552,7 @@ function setZero(arr2D){
 	}
 }
 
-function fn_init(){
-	setZero(block2D);
-	setblock2DFromBlock();
-	setZero(screen2D);
-	moveblock2DToScreen2D();
-	movestack2DToScreen2D();
-	myrender();
-	console.log(screen2D);
-}
+
 
 </script>
 <style>
@@ -393,7 +565,6 @@ function fn_init(){
 </head>
 <body>
 
-<a href="javascript:fn_init()">test</a>
 
 	<table id="mytable" border="1">
 		<tr>
