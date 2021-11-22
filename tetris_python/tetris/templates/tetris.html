@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" 
+        integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" 
+        crossorigin="anonymous"></script>
+<title>TETRIS</title>
+
+<script type="text/javascript">
+    class Block {
+        constructor(status, type, i, j) {
+            this.status = status;
+            this.type = type;
+            this.i = i;
+            this.j = j;
+        }
+    }
+
+    let flag_ing = false;
+    let block = new Block(0, 1, 2, 4);
+
+    let screen2D =
+        [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ];
+
+    let stack2D =
+        [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+        ];
+
+    let block2D =
+        [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ];
+
+    function setblock2DFromBlock() {
+
+        if (block.type == 1) {
+            block2D[block.i][block.j] = block.type;
+            block2D[block.i][block.j + 1] = block.type;
+            block2D[block.i + 1][block.j] = block.type;
+            block2D[block.i + 1][block.j + 1] = block.type;
+        }
+
+
+        if (block.type == 2) {
+            if (block.status == 0) {
+                block2D[block.i - 1][block.j] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i + 1][block.j] = block.type;
+                block2D[block.i + 2][block.j] = block.type;
+            }
+            if (block.status == 1) {
+                block2D[block.i][block.j - 1] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i][block.j + 1] = block.type;
+                block2D[block.i][block.j + 2] = block.type;
+            }
+        }
+
+        if (block.type == 3) {
+            if (block.status == 0) {
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i][block.j - 1] = block.type;
+                block2D[block.i + 1][block.j] = block.type;
+                block2D[block.i + 1][block.j + 1] = block.type;
+            }
+            if (block.status == 1) {
+                block2D[block.i - 1][block.j] = block.type;
+                block2D[block.i][block.j - 1] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i + 1][block.j - 1] = block.type;
+            }
+        }
+
+        if (block.type == 4) {
+            if (block.status == 0) {
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i][block.j + 1] = block.type;
+                block2D[block.i + 1][block.j - 1] = block.type;
+                block2D[block.i + 1][block.j] = block.type;
+            }
+            if (block.status == 1) {
+                block2D[block.i - 1][block.j - 1] = block.type;
+                block2D[block.i][block.j - 1] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i + 1][block.j] = block.type;
+            }
+        }
+
+        if (block.type == 5) {
+            if (block.status == 0) {
+                block2D[block.i][block.j - 1] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i][block.j + 1] = block.type;
+                block2D[block.i + 1][block.j + 1] = block.type;
+            }
+            if (block.status == 1) {
+                block2D[block.i - 1][block.j] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i + 1][block.j] = block.type;
+                block2D[block.i + 1][block.j - 1] = block.type;
+            }
+            if (block.status == 2) {
+                block2D[block.i - 1][block.j - 1] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i][block.j - 1] = block.type;
+                block2D[block.i][block.j + 1] = block.type;
+            }
+            if (block.status == 3) {
+                block2D[block.i - 1][block.j] = block.type;
+                block2D[block.i - 1][block.j + 1] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i + 1][block.j] = block.type;
+            }
+        }
+
+        if (block.type == 6) {
+            if (block.status == 0) {
+                block2D[block.i][block.j - 1] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i][block.j + 1] = block.type;
+                block2D[block.i + 1][block.j - 1] = block.type;
+            }
+            if (block.status == 1) {
+                block2D[block.i - 1][block.j - 1] = block.type;
+                block2D[block.i - 1][block.j] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i + 1][block.j] = block.type;
+            }
+            if (block.status == 2) {
+                block2D[block.i][block.j - 1] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i][block.j + 1] = block.type;
+                block2D[block.i - 1][block.j + 1] = block.type;
+            }
+            if (block.status == 3) {
+                block2D[block.i - 1][block.j] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i + 1][block.j] = block.type;
+                block2D[block.i + 1][block.j + 1] = block.type;
+            }
+        }
+
+        if (block.type == 7) {
+            if (block.status == 0) {
+                block2D[block.i - 1][block.j] = block.type;
+                block2D[block.i][block.j - 1] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i][block.j + 1] = block.type;
+            }
+            if (block.status == 1) {
+                block2D[block.i - 1][block.j] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i + 1][block.j] = block.type;
+                block2D[block.i][block.j + 1] = block.type;
+            }
+            if (block.status == 2) {
+                block2D[block.i][block.j - 1] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i][block.j + 1] = block.type;
+                block2D[block.i + 1][block.j] = block.type;
+            }
+            if (block.status == 3) {
+                block2D[block.i][block.j - 1] = block.type;
+                block2D[block.i - 1][block.j] = block.type;
+                block2D[block.i][block.j] = block.type;
+                block2D[block.i + 1][block.j] = block.type;
+            }
+        }
+    }
+
+    function moveblock2DToScreen2D() {
+        for (let i = 0; i < block2D.length; i++) {
+            for (let j = 0; j < block2D[i].length; j++) {
+                if (block2D[i][j] > 0) {
+                    screen2D[i][j] = block2D[i][j];
+                }
+            }
+        }
+    }
+
+    function movestack2DToScreen2D() {
+        for (let i = 0; i < stack2D.length; i++) {
+            for (let j = 0; j < stack2D[i].length; j++) {
+                if (stack2D[i][j] > 0) {
+                    screen2D[i][j] = stack2D[i][j];
+                }
+            }
+        }
+    }
+
+    function myrender() {
+        for (let i = 0; i < screen2D.length; i++) {
+            trs = document.getElementsByClassName('mytr')[i]
+            tds = trs.getElementsByTagName('td')
+            for (let j = 0; j < tds.length; j++) {
+                if (screen2D[i][j] == 0) {
+                    tds[j].style.backgroundColor = '#FFFFFF';
+                }
+                if (screen2D[i][j] == 1) {
+                    tds[j].style.backgroundColor = '#E57373';
+                }
+                if (screen2D[i][j] == 2) {
+                    tds[j].style.backgroundColor = '#FFA726';
+                }
+                if (screen2D[i][j] == 3) {
+                    tds[j].style.backgroundColor = '#FFEE58';
+                }
+                if (screen2D[i][j] == 4) {
+                    tds[j].style.backgroundColor = '#66BB6A';
+                }
+                if (screen2D[i][j] == 5) {
+                    tds[j].style.backgroundColor = '#29B6F6';
+                }
+                if (screen2D[i][j] == 6) {
+                    tds[j].style.backgroundColor = '#5C6BC0';
+                }
+                if (screen2D[i][j] == 7) {
+                    tds[j].style.backgroundColor = '#9575CD';
+                }
+
+
+                if (screen2D[i][j] == 11) {
+                    tds[j].style.backgroundColor = '#B71C1C';
+                }
+                if (screen2D[i][j] == 12) {
+                    tds[j].style.backgroundColor = '#FF6F00';
+                }
+                if (screen2D[i][j] == 13) {
+                    tds[j].style.backgroundColor = '#FBC02D';
+                }
+                if (screen2D[i][j] == 14) {
+                    tds[j].style.backgroundColor = '#1B5E20';
+                }
+                if (screen2D[i][j] == 15) {
+                    tds[j].style.backgroundColor = '#01579B';
+                }
+                if (screen2D[i][j] == 16) {
+                    tds[j].style.backgroundColor = '#1A237E';
+                }
+                if (screen2D[i][j] == 17) {
+                    tds[j].style.backgroundColor = '#512DA8 ';
+                }
+
+            }
+        }
+    }
+
+    window.addEventListener("keydown", (e) => {
+
+        myclick(e.keyCode)
+    })
+
+    function myclick(key) {
+        if (!flag_ing) {
+            return;
+        }
+
+        //충돌 후 다시 복원하기 위한 상태 저장
+        temp_i = block.i;
+        temp_j = block.j;
+        temp_status = block.status;
+
+        if (key == 37) { //좌
+            block.j--;
+        }
+        if (key == 38) {//상
+            changeStatus();
+        }
+        if (key == 39) {//우
+            block.j++;
+        }
+        if (key == 40) {//하
+            block.i++;
+        }
+
+        setZero(block2D);
+
+        //바닥 충돌체크
+        let flag_crush_bottom = false;
+        try {
+            setblock2DFromBlock();
+        } catch (err) {
+            flag_crush_bottom = true;
+        }
+
+
+        let flag_crush = isCrushed();	//충돌체크
+
+        if (flag_crush_bottom || flag_crush) {
+            block.i = temp_i;
+            block.j = temp_j;
+            block.status = temp_status;
+            setZero(block2D);
+            setblock2DFromBlock();
+
+            if (key == 40) {	//if press ArrowDown => block2D to stack2D
+                moveblock2DToStack2D();
+                block.type = parseInt(Math.random() * 7 + 1);
+                block.i = 2;
+                block.j = 4;
+                setZero(block2D);
+                setblock2DFromBlock();
+                let cnt10 = getCnt10();
+                removeLine(cnt10);
+
+                for (let i = 0; i < 10; i++) {
+                    if (stack2D[4][i] > 0) {
+                        alert("GAME OVER")
+                        flag_ing = false;
+                    }
+                }
+                chkRemains(cnt10);
+
+
+            }
+        }
+
+        setZero(screen2D);
+        moveblock2DToScreen2D();
+        movestack2DToScreen2D();
+//         console.log(screen2D + "");
+        send_display();
+        myrender();
+    }
+
+    function chkRemains(cnt10) {
+        remain_lines = document.getElementById('my_reamin').value;
+
+        remain_lines = remain_lines - cnt10;
+        console.log(remain_lines)
+
+        document.getElementById('my_reamin').value = remain_lines;
+
+        if (remain_lines <= 0) {
+            send_finish();
+            alert("YOU WIN!!");
+            flag_ing = false;
+            remain_lines = 10;
+            document.getElementById('my_reamin').value = remain_lines;
+        }
+
+    }
+
+    function removeLine(cnt10) {
+        let temp_arr = [];
+        for (let i = 0; i < stack2D.length; i++) {
+            if (
+                stack2D[i][0] > 0 &&
+                stack2D[i][1] > 0 &&
+                stack2D[i][2] > 0 &&
+                stack2D[i][3] > 0 &&
+                stack2D[i][4] > 0 &&
+
+                stack2D[i][5] > 0 &&
+                stack2D[i][6] > 0 &&
+                stack2D[i][7] > 0 &&
+                stack2D[i][8] > 0 &&
+                stack2D[i][9] > 0
+            ) {
+            } else {
+                temp_arr.push(stack2D[i] + "");
+            }
+        }
+        for (let i = 0; i < cnt10; i++) {
+            temp_arr.unshift([0, 0, 0, 0, 0, 0, 0, 0, 0, 0] + "");
+        }
+
+        for (let i = 0; i < 25; i++) {
+            let line = temp_arr[i];
+            let line_arr = line.split(",");
+            stack2D[i][0] = parseInt(line_arr[0]);
+            stack2D[i][1] = parseInt(line_arr[1]);
+            stack2D[i][2] = parseInt(line_arr[2]);
+            stack2D[i][3] = parseInt(line_arr[3]);
+            stack2D[i][4] = parseInt(line_arr[4]);
+            stack2D[i][5] = parseInt(line_arr[5]);
+            stack2D[i][6] = parseInt(line_arr[6]);
+            stack2D[i][7] = parseInt(line_arr[7]);
+            stack2D[i][8] = parseInt(line_arr[8]);
+            stack2D[i][9] = parseInt(line_arr[9]);
+        }
+
+    }
+
+    function getCnt10() {
+        let cnt = 0;
+        for (let i = 0; i < stack2D.length; i++) {
+            if (
+                stack2D[i][0] > 0 &&
+                stack2D[i][1] > 0 &&
+                stack2D[i][2] > 0 &&
+                stack2D[i][3] > 0 &&
+                stack2D[i][4] > 0 &&
+
+                stack2D[i][5] > 0 &&
+                stack2D[i][6] > 0 &&
+                stack2D[i][7] > 0 &&
+                stack2D[i][8] > 0 &&
+                stack2D[i][9] > 0
+            ) {
+                cnt++;
+            }
+        }
+        return cnt;
+    }
+
+    function moveblock2DToStack2D() {
+        for (let i = 0; i < block2D.length; i++) {
+            for (let j = 0; j < block2D[i].length; j++) {
+                if (block2D[i][j] > 0) {
+                    stack2D[i][j] = block2D[i][j] + 10;
+                }
+            }
+        }
+
+    }
+
+
+    function isCrushed() {
+        let cnt4 = 0;
+        for (let i = 0; i < 25; i++) {
+            for (let j = 0; j < 10; j++) {
+                if (block2D[i][j] > 0) {
+                    cnt4++;
+                }
+            }
+        }
+        if (cnt4 < 4) {
+            return true;
+        }
+
+        for (let i = 0; i < 25; i++) {
+            for (let j = 0; j < 10; j++) {
+                if (block2D[i][j] > 0 && stack2D[i][j] > 0) {
+                    return true;
+                }
+            }
+        }
+
+
+        return false;
+    }
+
+
+    function changeStatus() {
+
+        if (block.type == 2 || block.type == 3 || block.type == 4) {
+            if (block.status == 0) {
+                block.status = 1;
+            } else if (block.status == 1) {
+                block.status = 0;
+            }
+        }
+
+        if (block.type == 5 || block.type == 6 || block.type == 7) {
+            if (block.status == 0) {
+                block.status = 1;
+            } else if (block.status == 1) {
+                block.status = 2;
+            } else if (block.status == 2) {
+                block.status = 3;
+            } else if (block.status == 3) {
+                block.status = 0;
+            }
+        }
+
+    }
+
+    function setZero(arr2D) {
+        for (let i = 0; i < arr2D.length; i++) {
+            for (let j = 0; j < arr2D[i].length; j++) {
+                arr2D[i][j] = 0;
+            }
+        }
+    }
+
+
+</script>
+
+<style>
+    #mytable {
+        width: 300px;
+        height: 700px;
+        border-collapse: collapse;
+    }
+    
+    canvas{
+    	width:81px;
+    	height:201px;
+    }
+</style>
+
+
+</head>
+
+<body>
+    <!-- 	<a href="javascript:fn_init()">연습</a> -->
+
+
+    <table border="1">
+        <tr>
+            <td>
+                남은갯수 <input readonly type="text" id="my_reamin" value="20" style="width:20px;"/>
+                이름 <input type="text" id="my_name" style="width:50px;"/>
+                <input type="button" value="ready" onclick="send_ready()"/>
+                <input type="button" value="start" onclick="send_start()"/>
+                <table id="mytable" border="1">
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+
+
+
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+
+
+
+
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+
+
+
+
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+
+
+
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                    <tr class="mytr">
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                        <td class="mytd">&nbsp;</td>
+                    </tr>
+                </table>
+
+            </td>
+
+            <td>
+                <table border="1">
+                    <tr>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                    </tr>
+
+                    <tr>
+                        <td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+						
+						<td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                    </tr>
+
+                    <tr>
+                        <td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+						
+						<td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+                    </tr>
+                    
+                    <tr>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                        <td><span class="user_name">1</span><span class="user_score"></span></td>
+                    </tr>
+
+                    <tr>
+                        <td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+						
+						<td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+                        <td><canvas class="user_canvas"></canvas></td>
+                    </tr>
+                </table>
+            </td>
+            
+            
+        </tr>
+    </table>
+
+
+<script type="text/javascript">
+
+var socket = io.connect('http://192.168.43.46:5000');
+
+// 서버 접속
+socket.on( 'connect', function() {
+    socket.emit( 'my event', {
+    data: 'User Connected'
+    })
+} )
+
+// 받은 메시지
+socket.on( 'my response', function( msg ) {
+    console.log(msg)
+    if(msg.commend == "c_ready"){
+    	fn_merge_name(msg.user_name);
+    }
+    if(msg.commend == "c_start"){
+    	flag_ing = true;
+    }
+    if(msg.commend == "c_display"){
+    	fn_display(msg.user_name,msg.user_score,msg.user_screen);
+    }
+    if(msg.commend == "c_finish"){
+		alert(msg.user_name + "님이 이겼습니다.")
+		flag_ing = false;
+    }
+})
+
+let user_names = [];
+function fn_merge_name(user_name){
+	console.log("start")
+	let flag_exist = false;
+	for(let i = 0; i < user_names.length; i++){
+		if(user_names[i] == user_name){
+			flag_exist = true;
+			break;
+		}
+	}
+	console.log(flag_exist)
+	if(!flag_exist){
+		user_names.push(user_name);
+	}
+	
+	let objs_name = document.getElementsByClassName("user_name");
+	for(let i = 0; i < user_names.length; i++){
+		objs_name[i].innerHTML = user_names[i];
+	}
+}
+
+function send_ready(){
+	let user_name = $('#my_name').val();
+	 socket.emit( 'my event', {
+	        commend : "c_ready",
+	        user_name : user_name
+	   })
+}
+
+function send_start(){
+	let user_name = $('#my_name').val();
+	socket.emit( 'my event', {
+        commend : "c_start",
+        user_name : user_name
+    })
+}
+
+function send_display(){
+	let user_name = $('#my_name').val();
+	let user_score = $('#my_reamin').val();
+	let user_screen = screen2D+"";
+	 socket.emit( 'my event', {
+	        commend 	: "c_display",
+	        user_name   : user_name,
+	        user_score  : user_score,
+	        user_screen : user_screen
+	   })
+}
+
+
+function fn_display(user_name, user_score, user_screen){
+	let objs_name = document.getElementsByClassName("user_name");
+	let objs_canvas = document.getElementsByClassName("user_canvas");
+	let objs_score = document.getElementsByClassName("user_score");
+	let idx_screen = -1;
+	for(let i = 0; i < user_names.length; i++){
+		if(objs_name[i].innerHTML == user_name){
+			idx_screen = i;
+			break;
+			console.log(idx_screen)
+			
+		}
+	}
+	objs_score[idx_screen].innerHTML = user_score;
+	
+	let idx = 0;
+	let str_data = user_screen;
+	let canvas = objs_canvas[idx_screen];
+	let ctx = canvas.getContext('2d');
+	
+	let arr_data = str_data.split(",");
+	
+	for(let i = 0; i < 25; i++){
+		for(let j = 0; j < 10; j++){
+			if(arr_data[i*10+j] == "0") ctx.fillStyle = '#FFFFFF';
+			
+			if(arr_data[i*10+j] == "1") ctx.fillStyle = '#E57373';
+			if(arr_data[i*10+j] == "2") ctx.fillStyle = '#FFA726';
+			if(arr_data[i*10+j] == "3") ctx.fillStyle = '#FFEE58';
+			if(arr_data[i*10+j] == "4") ctx.fillStyle = '#66BB6A';
+			if(arr_data[i*10+j] == "5") ctx.fillStyle = '#29B6F6';
+			if(arr_data[i*10+j] == "6") ctx.fillStyle = '#5C6BC0';
+			if(arr_data[i*10+j] == "7") ctx.fillStyle = '#9575CD';
+			
+			if(arr_data[i*10+j] == "11") ctx.fillStyle = '#B71C1C';
+			if(arr_data[i*10+j] == "12") ctx.fillStyle = '#FF6F00';
+			if(arr_data[i*10+j] == "13") ctx.fillStyle = '#FBC02D';
+			if(arr_data[i*10+j] == "14") ctx.fillStyle = '#1B5E20';
+			if(arr_data[i*10+j] == "15") ctx.fillStyle = '#01579B';
+			if(arr_data[i*10+j] == "16") ctx.fillStyle = '#1A237E';
+			if(arr_data[i*10+j] == "17") ctx.fillStyle = '#512DA8';
+			
+			ctx.fillRect(j*30, i*6, 29, 5);
+		}
+	}
+}
+
+function send_finish(){
+	let user_name = $('#my_name').val();
+	socket.emit( 'my event', {
+        commend : "c_finish",
+        user_name : user_name
+    })
+}
+
+</script>
+
+</body>
+
+</html>
